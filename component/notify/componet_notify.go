@@ -35,6 +35,7 @@ type ConfigComponent struct {
 	appConfigFunc func() config.AppConfig
 	cache         *storage.Cache
 	stopCh        chan interface{}
+	once          sync.Once
 }
 
 // SetAppConfig nolint
@@ -73,7 +74,9 @@ loop:
 
 // Stop 停止配置组件定时器
 func (c *ConfigComponent) Stop() {
-	if c.stopCh != nil {
+	c.once.Do(func() {
+		for c.stopCh == nil {
+		}
 		close(c.stopCh)
-	}
+	})
 }
